@@ -1,0 +1,66 @@
+trigger:
+  branches:
+    include:
+    - main
+
+variables:
+  NETCORE_VERSION: '6.0.x'
+  buildConfiguration: 'Release'
+  vmImage: 'macOS-12'
+  isPreRelease: $[ne(variables['Build.SourceBranchName'], 'main')]
+  outputDirectory: '$(build.binariesDirectory)/$(buildConfiguration)'
+  xcodeRoot: '/Applications/Xcode_13.app'
+  XA.Jdk11.Folder: jdk-11
+  maj_min_version: '1.0'
+  revision: $(Build.BuildId)
+  buildNumber: $[counter(variables['build'], 1)] # Increments every time the build runs
+  versionName: '$(maj_min_version).$(buildNumber)'
+  solutionName: '*.sln'
+  projects: '**/*UnitTests.csproj'
+
+stages:
+- stage: buildTest
+  displayName: Build & Test
+  jobs:
+  - job: testApp
+    displayName: Perform Tests
+    pool:
+      vmImage: $(vmImage)
+      demands:
+      - MSBuild
+    workspace:
+      clean: all
+    steps:
+
+    - task: UseDotNet@2
+      displayName: 'Use global.json SDK'
+      inputs:
+        packageType: 'sdk'
+        useGlobalJson: true
+
+    - task: NuGetToolInstaller@1
+      displayName: Use latest NuGet
+      inputs:
+        checkLatest: true
+
+    - task: NuGetCommand@2
+      displayName: NuGet Restore
+      inputs:
+        command: 'restore'
+        restoreSolution: $(solution)
+
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet test'
+      inputs:
+        command: 'test'
+        projects: $(projects)
+        configuration: $(buildConfiguration)
+        testRunTitle: 'Test Run $(Build.BuildId)'
+        arguments: '/p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
+
+    - task: PublishCodeCoverageResults@1
+      displayName: 'Publish Code Coverage Results'
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+        failIfCoverageEmpty: true
