@@ -67,11 +67,17 @@ stages:
         projects: $(projects)
         configuration: $(buildConfiguration)
         testRunTitle: 'Test Run $(Build.BuildId)'
-        arguments: '/p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=$(Build.SourcesDirectory)/TestResults/Coverage/'
+        arguments: '-bl:$(Build.ArtifactsDirectory)/test.binlog'
 
-    - task: PublishCodeCoverageResults@1
-      displayName: 'Publish Code Coverage Results'
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish binlog artifacts'
       inputs:
-        codeCoverageTool: 'Cobertura'
-        summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
-        failIfCoverageEmpty: true
+        PathtoPublish: '$(Build.ArtifactsDirectory)'
+        ArtifactName: 'binlogs'
+
+    # - task: PublishCodeCoverageResults@1
+    #   displayName: 'Publish Code Coverage Results'
+    #   inputs:
+    #     codeCoverageTool: 'Cobertura'
+    #     summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+    #     failIfCoverageEmpty: true
