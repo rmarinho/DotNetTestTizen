@@ -65,10 +65,11 @@ stages:
         projects: $(projects)
         configuration: $(buildConfiguration)
         testRunTitle: 'Test Run $(Build.BuildId)'
-        arguments: '-bl:$(Build.ArtifactsDirectory)/test_$(buildConfiguration).binlog'
+        arguments: '-bl:$(Build.ArtifactsDirectory)/test.binlog'
 
     - task: PublishBuildArtifacts@1
       displayName: 'Publish binlog artifacts'
+      condition: always()
       inputs:
         PathtoPublish: '$(Build.ArtifactsDirectory)'
         ArtifactName: 'binlogs'
