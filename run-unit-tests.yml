@@ -46,6 +46,7 @@ stages:
           dotnet --version
           dotnet --list-sdks
           dotnet workload list
+          dotnet --info
 
     - task: NuGetToolInstaller@1
       displayName: Use latest NuGet
