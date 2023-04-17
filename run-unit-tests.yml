@@ -46,8 +46,6 @@ stages:
           dotnet --version
           dotnet --list-sdks
           dotnet workload list
-          dotnet nuget locals all --clear 
-          dotnet workload install maui  
 
     - task: NuGetToolInstaller@1
       displayName: Use latest NuGet
@@ -67,17 +65,10 @@ stages:
         projects: $(projects)
         configuration: $(buildConfiguration)
         testRunTitle: 'Test Run $(Build.BuildId)'
-        arguments: '-bl:$(Build.ArtifactsDirectory)/test.binlog'
+        arguments: '-bl:$(Build.ArtifactsDirectory)/test_$(buildConfiguration).binlog'
 
     - task: PublishBuildArtifacts@1
       displayName: 'Publish binlog artifacts'
       inputs:
         PathtoPublish: '$(Build.ArtifactsDirectory)'
         ArtifactName: 'binlogs'
-
-    # - task: PublishCodeCoverageResults@1
-    #   displayName: 'Publish Code Coverage Results'
-    #   inputs:
-    #     codeCoverageTool: 'Cobertura'
-    #     summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
-    #     failIfCoverageEmpty: true
