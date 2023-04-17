@@ -37,6 +37,17 @@ stages:
       inputs:
         packageType: 'sdk'
         useGlobalJson: true
+    
+    - task: Bash@3
+      displayName: Install MAUI
+      inputs:
+        targetType: 'inline'
+        script: |
+          dotnet --version
+          dotnet --list-sdks
+          dotnet workload list
+          dotnet nuget locals all --clear 
+          dotnet workload install maui  
 
     - task: NuGetToolInstaller@1
       displayName: Use latest NuGet
